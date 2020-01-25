@@ -23,18 +23,34 @@ namespace Notebook
         public InterfaceAddRow(Row row = default(Row))
         {
             InitializeComponent();
+            // Для программного заполнения комбобокса, чтобы можно было позже выводить значение из экземпляра
+            List<string> ColorList = new List<string> { "#ff95a5a6", "#ff1abc9c", "#ff2ecc71", "#ff9b59b6", "#ffecf0f1" };
+            // Коллекция контролов, заполняем её прямоугольниками указанных цветов
+            List<ComboBoxItem> ColorListItems = new List<ComboBoxItem>();
             foreach (var item in ColorList)
             {
-                ComboBoxItem comboBoxItem = new ComboBoxItem();
+                // Прямоугольник
                 Rectangle rectangle = new Rectangle();
+                // Конвертор цветов 
                 var bc = new BrushConverter();
+                // Конвертируем цвет, конвертируем и добавляем свойство фона
                 rectangle.Fill = (Brush)bc.ConvertFrom(item);
+                // Ширина
                 rectangle.Width = 16;
+                // Высота
                 rectangle.Height = 15;
+                // Создаем новый экземпляр контрола и добавляем в него наш прямоугольник
+                ComboBoxItem comboBoxItem = new ComboBoxItem();
                 comboBoxItem.Content = rectangle;
+                // Без этого генерится ошибка связи данных в вывод 
+                comboBoxItem.VerticalContentAlignment = VerticalAlignment.Center;
+                comboBoxItem.HorizontalContentAlignment = HorizontalAlignment.Stretch;
+                // Добавляем в коллекцию полученный контрол
                 ColorListItems.Add(comboBoxItem);
             }
+            // Связываем коллекцию контролов с комбобоксом
             ColorItem.ItemsSource = ColorListItems;
+            // Если конструктор вызван с параметром - выводим данные из полученного экземпляра
             if (!row.Equals(default(Row)))
             {
                 Theme.Text = row.Theme;
@@ -44,17 +60,16 @@ namespace Notebook
                 var b = ColorList.IndexOf(row.Color.ToLower());
                 ColorItem.SelectedIndex = ColorList.IndexOf(row.Color.ToLower());
                 SelectDate.SelectedDate = row.Date;
-                TimeH.SelectedItem = row.Date.Hour;
+                TimeH.SelectedIndex = row.Date.Hour;
+                TimeM.SelectedIndex = row.Date.Minute/15;
             }
+            // Если конструктор вызван без параметра - указываем стандартные значения для контролов, для которых они не указаны во view
             else
             {
                 SelectDate.SelectedDate = DateTime.Now;
             }
             
         }
-        // Для программного заполнения комбобокса, чтобы можно было позже выводить значение из экземпляра
-        public List<string> ColorList = new List<string> { "#ff95a5a6", "#ff1abc9c", "#ff2ecc71","#ff9b59b6", "#ff1abc9c", "#ffecf0f1" };
-        public List<ComboBoxItem> ColorListItems = new List<ComboBoxItem>();
         /// <summary>
         /// Поле в котором хранится прочитанный из полей экзепляр типа Row
         /// </summary>
@@ -63,6 +78,11 @@ namespace Notebook
         /// Флаг, указывающий получены ли данные, для события windowClosing
         /// </summary>
         private bool DataGet = false;
+        /// <summary>
+        /// Обработка событий завершения работы с формой. В случае корректно заполненных полей - запишет в NewRow экземпляр считанный с контролов
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AcceptClick(object sender, RoutedEventArgs e)
         {
             string theme = Theme.Text;

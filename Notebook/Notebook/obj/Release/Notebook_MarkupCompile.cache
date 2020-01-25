@@ -4,11 +4,11 @@
 winexe
 C#
 .cs
-C:\Users\user\Source\Repos\Notepad3\Notebook\Notebook\obj\Debug\
+C:\Users\user\Source\Repos\Notepad3\Notebook\Notebook\obj\Release\
 Notebook
 none
 false
-DEBUG;TRACE
+TRACE
 C:\Users\user\Source\Repos\Notepad3\Notebook\Notebook\App.xaml
 2-34555371
 
@@ -16,5 +16,5 @@ C:\Users\user\Source\Repos\Notepad3\Notebook\Notebook\App.xaml
 201325718732
 InterfaceAddRow.xaml;MainWindow.xaml;
 
-False
+True
 
