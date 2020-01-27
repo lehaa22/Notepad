@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace Notebook
 {
@@ -43,18 +40,23 @@ namespace Notebook
         /// <summary>
         /// Когда нужно выполнить задачу относительно текущего времени
         /// </summary>
+        [JsonIgnore]
         public string DateForUser
         {
-            get { return GetDateForUser(Date); }
+            get 
+            {
+                if (ToDo) return "Выполнено"; else return GetDateForUser(Date); 
+            }
         }
         /// <summary>
         /// Цвет отражающий просрочена ли задача
         /// </summary>
+        [JsonIgnore]
         public string BGcolorUserDate
         {
             get
             {
-                return Math.Round(Date.Subtract(DateTime.Now).TotalDays) < 0 ? "#c0392b" : "#27ae60";
+                if (ToDo) return "#27ae60"; return Math.Round(Date.Subtract(DateTime.Now).TotalDays) < 0 ? "#c0392b" : "#27ae60";
             }
         }
         /// <summary>
@@ -128,7 +130,7 @@ namespace Notebook
                 }
                 else if (ModDiff > 7)
                 {
-                    var weeks = Math.Round(diff.TotalDays / 7);
+                    var weeks = Math.Round(ModDiff / 7);
                     if (weeks == 1)
                     {
                         return isPast ? "неделю назад" : "через неделю";

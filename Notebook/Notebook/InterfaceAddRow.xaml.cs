@@ -1,17 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System.Diagnostics;
 
 namespace Notebook
 {
@@ -20,7 +13,7 @@ namespace Notebook
     /// </summary>
     public partial class InterfaceAddRow : Window
     {
-        public InterfaceAddRow(Row row = default(Row))
+        public InterfaceAddRow(Row row = default)
         {
             InitializeComponent();
             // Для программного заполнения комбобокса, чтобы можно было позже выводить значение из экземпляра
@@ -33,18 +26,19 @@ namespace Notebook
                 Rectangle rectangle = new Rectangle();
                 // Конвертор цветов 
                 var bc = new BrushConverter();
-                // Конвертируем цвет, конвертируем и добавляем свойство фона
+                // Конвертируем цвет и добавляем свойство фона
                 rectangle.Fill = (Brush)bc.ConvertFrom(item);
-                // Ширина
+                // Ширина и высота прямоугольника
                 rectangle.Width = 16;
-                // Высота
                 rectangle.Height = 15;
                 // Создаем новый экземпляр контрола и добавляем в него наш прямоугольник
-                ComboBoxItem comboBoxItem = new ComboBoxItem();
-                comboBoxItem.Content = rectangle;
-                // Без этого генерится ошибка связи данных в вывод 
-                comboBoxItem.VerticalContentAlignment = VerticalAlignment.Center;
-                comboBoxItem.HorizontalContentAlignment = HorizontalAlignment.Stretch;
+                ComboBoxItem comboBoxItem = new ComboBoxItem
+                {
+                    Content = rectangle,
+                    // Без этого генерится ошибка связи данных в вывод 
+                    VerticalContentAlignment = VerticalAlignment.Center,
+                    HorizontalContentAlignment = HorizontalAlignment.Stretch
+                };
                 // Добавляем в коллекцию полученный контрол
                 ColorListItems.Add(comboBoxItem);
             }
@@ -55,20 +49,20 @@ namespace Notebook
             {
                 Theme.Text = row.Theme;
                 Text.Text = row.Text;
-                Priority.SelectedIndex = row.Priority-1;
-                var a = row.Color.ToLower();
-                var b = ColorList.IndexOf(row.Color.ToLower());
+                Priority.SelectedIndex = row.Priority - 1;
+                row.Color.ToLower();
+                ColorList.IndexOf(row.Color.ToLower());
                 ColorItem.SelectedIndex = ColorList.IndexOf(row.Color.ToLower());
                 SelectDate.SelectedDate = row.Date;
                 TimeH.SelectedIndex = row.Date.Hour;
-                TimeM.SelectedIndex = row.Date.Minute/15;
+                TimeM.SelectedIndex = row.Date.Minute / 15;
             }
             // Если конструктор вызван без параметра - указываем стандартные значения для контролов, для которых они не указаны во view
             else
             {
                 SelectDate.SelectedDate = DateTime.Now;
             }
-            
+
         }
         /// <summary>
         /// Поле в котором хранится прочитанный из полей экзепляр типа Row
@@ -111,13 +105,7 @@ namespace Notebook
             if (ComboBoxItem == null) return;
             var minutes = ComboBoxItem.Content.ToString();
             Date = Date.AddMinutes(double.Parse(minutes));
-            NewRow = new Row() {
-                Text = text,
-                Theme = theme,
-                Priority = priority,
-                Color = color,
-                Date = Date
-            };
+            NewRow = new Row(-1,theme,text,priority,Date,DateTime.Now,color,false);
             DataGet = true;
             this.DialogResult = true;
         }

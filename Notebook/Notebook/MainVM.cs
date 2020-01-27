@@ -4,15 +4,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Input;
 
 namespace Notebook
 {
@@ -21,6 +15,7 @@ namespace Notebook
     /// </summary>
     public class MainVM : INotifyPropertyChanged
     {
+        public string TimeNow { get { return DateTime.Now.ToLongTimeString(); } }
         /// <summary>
         /// Событие изменения значений и уведомление о необходимости отобразить новые данные
         /// </summary>
@@ -55,13 +50,21 @@ namespace Notebook
         /// </summary>
         public DelegateCommand<List<object>> SortCommand { get; }
         /// <summary>
-        /// Делегат кнопки удаления строки, принимает экземпляр ROW
+        /// Делегат кнопки редактирования задачи 
         /// </summary>
         public DelegateCommand<Row?> EditCommand { get; }
         /// <summary>
-        /// Делегат кнопки редактирования задачи
+        /// Делегат кнопки указания выполненности задачи
+        /// </summary>
+        public DelegateCommand<Row?> ToDoCommand { get; }
+        /// <summary>
+        /// Делегат кнопки удаления строки, принимает экземпляр ROW
         /// </summary>
         public DelegateCommand<Row?> RemoveCommand { get; }
+        /// <summary>
+        /// Поток обновляющий время
+        /// </summary>
+        private Thread RealTimeReload { get; }
         /// <summary>
         /// Конструктор
         /// </summary>
@@ -69,6 +72,16 @@ namespace Notebook
         {
             // Проброс уведомления в основной класс 
             _notebookEngine.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
+            // Создаем поток, который будет обновлять отображаемое время
+            RealTimeReload = new Thread(() =>
+            {
+                while (true)
+                {
+                    OnPropertyChanged("TimeNow");
+                    Thread.Sleep(500);
+                }
+            });
+            RealTimeReload.Start();
             #region Описываем делегаты команд вызываемых UI
             AddCommand = new DelegateCommand(() =>
             {
@@ -88,7 +101,7 @@ namespace Notebook
                 string target = (string)list[0];
                 // Второй параметр - объект ListBox в котором сортируем
                 ListBox listBox = (ListBox)list[1];
-                // Если уже есть параметр сортировки и он с тем же полем - меняем 
+                // Если уже есть параметр сортировки и он с тем же полем - меняем порядок сортировки
                 if (listBox.Items.SortDescriptions.Count != 0 && listBox.Items.SortDescriptions[0].PropertyName == target)
                 {
                     var Dir = listBox.Items.SortDescriptions[0].Direction == ListSortDirection.Ascending ? ListSortDirection.Descending : ListSortDirection.Ascending;
@@ -103,7 +116,9 @@ namespace Notebook
             });
             ExitCommand = new DelegateCommand(() =>
             {
+                RealTimeReload.Abort();
                 _notebookEngine.Save();
+                Application.Current.Shutdown();
             });
             RemoveCommand = new DelegateCommand<Row?>(row =>
             {
@@ -113,12 +128,11 @@ namespace Notebook
                 }
                 else
                 {
-                    MessageBox.Show("Не выбрана задача для удаления","Удаление задачи",MessageBoxButton.OK,MessageBoxImage.Error);
+                    MessageBox.Show("Не выбрана задача для удаления", "Удаление задачи", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             });
             EditCommand = new DelegateCommand<Row?>(row =>
             {
-
                 if (row != null)
                 {
                     InterfaceAddRow interfaceAddRow = new InterfaceAddRow((Row)row);
@@ -131,7 +145,18 @@ namespace Notebook
                 }
                 else
                 {
-                    MessageBox.Show("Не выбрана задача для удаления", "Удаление задачи", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Не выбрана задача для удаления", "Редактирование задачи", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            });
+            ToDoCommand = new DelegateCommand<Row?>(row =>
+            {
+                if (row != null)
+                {
+                    _notebookEngine.ToDo((Row)row);
+                }
+                else
+                {
+                    MessageBox.Show("Не выбрана задача для удаления", "Задача выполнена", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             });
             #endregion

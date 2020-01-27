@@ -6,7 +6,7 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:local="clr-namespace:Notebook"
         mc:Ignorable="d"
-        Title="MainWindow"
+        Title="Notebook"
         SizeToContent="WidthAndHeight" 
         ResizeMode="CanMinimize"
         >
@@ -23,20 +23,54 @@
     </Window.DataContext>
     <Grid ShowGridLines="True">
         <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
             <RowDefinition Height="60"/>
-            <RowDefinition Height="500"/>
+            <RowDefinition Height="491"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="800"/>
         </Grid.ColumnDefinitions>
-
-        <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0">
+        <Menu Height="20" VerticalAlignment="Top" Grid.ColumnSpan="2" Grid.Column="0">
+            <MenuItem Header="Файл">
+                <MenuItem Header="Импорт">
+                    <MenuItem Header="WPF" ></MenuItem>
+                    <MenuItem Header="Импорт из CSV..."></MenuItem>
+                </MenuItem>
+                <MenuItem Header="Экспорт">
+                    <MenuItem Header="WPF" ></MenuItem>
+                    <MenuItem Header="Импорт из CSV..."></MenuItem>
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="Выход" Command="{Binding ExitCommand}"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Правка">
+                <MenuItem Header="Добавить" Command="{Binding AddCommand}"></MenuItem>
+                <MenuItem Header="Выполена" Command="{Binding ToDoCommand}"></MenuItem>
+                <MenuItem Header="Редактировать" Command="{Binding EditCommand}"></MenuItem>
+                <MenuItem Header="Удалить" Command="{Binding RemoveCommand}"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Справка">
+                <MenuItem Header="Статистика"></MenuItem>
+                <Separator />
+                <MenuItem Header="О программе"></MenuItem>
+            </MenuItem>
+        </Menu>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="2">
+            <TextBlock Text="{Binding TimeNow}" 
+                       FontSize="30" 
+                       Margin="12"/>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" Grid.Row="2" Grid.Column="0">
             <Button Content="Добавить" 
                     Margin="20 7" 
                     Command="{Binding AddCommand}"
                     CommandParameter="add"
                     ></Button>
+            <Button Content="Выполнена" 
+                    Margin="20 7" 
+                    Command="{Binding ToDoCommand}"
+                    CommandParameter="{Binding ElementName=ToDoList, Path=SelectedItem}"/>
             <Button Content="Редактировать" 
                     Margin="20 7" 
                     Command="{Binding EditCommand}"
@@ -64,6 +98,7 @@
                         Выполнение
                     </ComboBoxItem>
                 </ComboBox>
+
                 <Button x:Name="Sort"
                         Content="Сортировать" 
                         Command="{Binding SortCommand}">
@@ -74,18 +109,17 @@
                         </MultiBinding>
                     </Button.CommandParameter>
                 </Button>
+
             </StackPanel>
-            
         </StackPanel>
-        
+
         <!-- 
         ScrollViewer.HorizontalScrollBarVisibility="Disabled" - чтобы контент не растягивался в бесконечность
         ScrollViewer.CanContentScroll="False" - чтобы можно было скролить попиксельно, а не построчно
         -->
-        <ListBox Grid.Row="1"
+        <ListBox Grid.Row="2"
                  Grid.Column="1"
                  x:Name="ToDoList"
-                 Width="800"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ScrollViewer.CanContentScroll="False"
                  ItemsSource="{Binding ListRow}">
@@ -106,7 +140,7 @@
                                 Background="{Binding Path=BGcolorUserDate}"
                                        Foreground="#ecf0f1"/>   
                         </TextBlock>
-                        
+
                         <TextBlock Margin="10 0 10 10"
                                    Text="{Binding Path=Text}"
                                    TextWrapping="Wrap"
@@ -115,100 +149,6 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-
-        <!--Пытался сделать таблицу, потрачено 8 часов и не получилось полноценно контролировать контент как я хочу. 
-        Не нашел годных уроков по работе с ListView, может посоветуете что-нибудь, если этого не будет в дальнеших уроках-->
-        
-        
-        <!--<ListView 
-            x:Name="listView" 
-            Grid.Row="1" 
-            Grid.Column="1" 
-            ItemsSource="{Binding Path=notebookEngine.Data}" 
-            Background="AliceBlue" 
-            ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
-            AutomationProperties.IsRowHeader="True"
-            Width="800"
-            >
-            <ListView.View>
-                <GridView AllowsColumnReorder="true">
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=Theme}"  
-                                    Header="Тема"></GridViewColumn>
-                    <GridViewColumn 
-                                    Header="Текст">
-                        --><!--Для того, чтобы большой текст переносился--><!--
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock
-                                    TextWrapping="Wrap" 
-                                    Text="{Binding Path=Text}"
-                                    MaxWidth="500">
-                                </TextBlock>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                                    
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=Date,StringFormat='dd.MM.yyyy HH:mm'}"
-                                    Header="Дата"/>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=Created,StringFormat='dd.MM.yyyy HH:mm:ss'}"
-                                    Header="Дата создания"/>
-                </GridView>
-            </ListView.View>
-        </ListView>-->
-        
-        <!--<ListBox x:Name="ViewTable" 
-                 Grid.Column="1" 
-                 Grid.Row="1"
-                 Margin="5 5 0 0"
-                 Background="Aqua">
-            <Grid Height="485" Width="780">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <GridSplitter Grid.Column="0"
-                              ShowsPreview="True"
-                              Width="2"
-                              Background="gray"
-                              Opacity="0.3">
-                </GridSplitter>
-                <GridSplitter Grid.Column="1"
-                              ShowsPreview="True"
-                              Width="2"
-                              Background="gray"
-                              Opacity="0.3">
-                </GridSplitter>
-                <GridSplitter Grid.Column="2"
-                              ShowsPreview="True"
-                              Width="2"
-                              Background="gray"
-                              Opacity="0.3">
-                </GridSplitter>
-                <ListBoxItem Grid.Column="0" Margin="3">
-                    <TextBlock Text="тема" ></TextBlock>
-                </ListBoxItem>
-                    <ListBoxItem Grid.Column="1" Margin="3">
-                <TextBlock Text="111111" ></TextBlock>
-                </ListBoxItem>
-                <ListBoxItem Grid.Column="2" Margin="3">
-                    <TextBlock Text="222222222222"></TextBlock>
-                </ListBoxItem>
-
-            </Grid>-->
-
-            <!--<ListBox.ItemTemplate>
-                <DataTemplate>
-                    <DockPanel>
-                        <TextBlock Text="тема"></TextBlock>
-                        <TextBlock Text="111111"></TextBlock>
-                        <TextBlock Text="222222222222"></TextBlock>
-                        <TextBlock Text="{Binding Path=Theme}"></TextBlock>
-                    </DockPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>-->
     </Grid>
 
 </Window>

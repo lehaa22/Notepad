@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Notebook
 {
-    public class NotebookEngine 
+    public class NotebookEngine
     {
         private int ID = 0;
         /// <summary>
@@ -23,7 +19,7 @@ namespace Notebook
         /// <summary>
         /// Экземпляр класса для экспорта/импорта данных
         /// </summary>
-        DataSaver dataSaver = new DataSaver();
+        readonly DataSaver dataSaver = new DataSaver();
         /// <summary>
         /// Конструктор, подгружает данные из файла data.json
         /// </summary>
@@ -86,7 +82,7 @@ namespace Notebook
         public bool Add(string Theme, string Text, int Priority, DateTime Date, string Color, DateTime Created = new DateTime(), bool ToDo = false)
         {
             if (Created == new DateTime()) Created = DateTime.Now;
-            _Rows.Add(new Row(ID++, Theme, Text, Priority, Date, Created, Color,false));
+            _Rows.Add(new Row(ID++, Theme, Text, Priority, Date, Created, Color, ToDo));
             OnPropertyChanged("PublicRows");
             return true;
         }
@@ -101,17 +97,23 @@ namespace Notebook
         /// Удаляет строку из массива задач
         /// </summary>
         /// <param name="row">Экземпляр который нужно удалить</param>
-        public void Remove (Row row)
+        public void Remove(Row row)
         {
             _Rows.Remove(row);
             OnPropertyChanged("PublicRows");
         }
-        public void Edit(Row row,Row newRow)
+        public void Edit(Row row, Row newRow)
         {
             _Rows[_Rows.IndexOf(row)] = newRow;
             OnPropertyChanged("PublicRows");
         }
-
+        public void ToDo(Row row)
+        {
+            var row1 = _Rows[_Rows.IndexOf(row)];
+            row1.ToDo = true;
+            Edit(row, row1);
+            OnPropertyChanged("PublicRows");
+        }
         /// <summary>
         /// Событие измнения данных
         /// </summary>

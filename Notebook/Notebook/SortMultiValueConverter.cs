@@ -8,6 +8,9 @@ using System.Windows.Data;
 
 namespace Notebook
 {
+    /// <summary>
+    /// Конвертор для передачи данных для сортировки
+    /// </summary>
     public class SortMultiValueConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
